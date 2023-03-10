@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">OpenWeatherMap</string>
+    <string name="citySearch">Search for a city</string>
+    <string name="submit">Submit</string>
+    <string name="update">Update</string>
+    <string name="API_key">d2396badfb12eb7ea9c85e5444da8948</string>
+</resources>
