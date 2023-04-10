@@ -36,22 +36,33 @@
         android:id="@+id/update"
         android:layout_width="wrap_content"
         android:layout_height="45dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="20dp"
         android:background="@color/button"
         android:text="@string/update"
         app:layout_constraintStart_toEndOf="@+id/submit"
         app:layout_constraintTop_toBottomOf="@+id/citySearch" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/citiesList"
+    <Button
+        android:id="@+id/change"
         android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/button"
+        android:text="@string/change"
+        app:layout_constraintStart_toEndOf="@+id/update"
+        app:layout_constraintTop_toBottomOf="@+id/citySearch" />
+
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/item_activity"
         android:layout_marginStart="35dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/submit"
-        />
+        app:layout_constraintTop_toBottomOf="@+id/submit">
+
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

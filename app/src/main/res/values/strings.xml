@@ -3,5 +3,7 @@
     <string name="citySearch">Search for a city</string>
     <string name="submit">Submit</string>
     <string name="update">Update</string>
+    <string name="change">Switch</string>
     <string name="API_key">d2396badfb12eb7ea9c85e5444da8948</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

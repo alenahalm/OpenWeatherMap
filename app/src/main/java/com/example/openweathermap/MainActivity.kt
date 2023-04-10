@@ -1,11 +1,10 @@
 package com.example.openweathermap
 
-import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.system.Os
 import android.util.Log
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.example.openweathermap.databinding.ActivityMainBinding
 import okhttp3.*
 import org.json.JSONObject
@@ -16,16 +15,30 @@ import kotlin.math.roundToInt
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var adapter: WeatherAdapter
+
+    private var currentFragment: Fragment? = null
+    private lateinit var fm: FragmentManager
+
     lateinit var API: String
+
+    lateinit var _response: String
 
     var weatherInfo = mutableListOf<Weather>()
 
-    lateinit var _response: String
+    var isLong = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        if (isLong) {
+            currentFragment = LongFragment(ArrayList(weatherInfo), this)
+        } else {
+            currentFragment = ShortFragment(ArrayList(weatherInfo), this)
+        }
+        fm = supportFragmentManager
+        fm.beginTransaction()
+            .add(R.id.container, currentFragment!!)
+            .commit()
 
         Log.d("tag", "created")
 
@@ -35,18 +48,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        adapter = WeatherAdapter(weatherInfo as ArrayList<Weather>)
-
-        binding.citiesList.layoutManager = LinearLayoutManager(this)
-        binding.citiesList.adapter = adapter
-
-        binding.citiesList.apply {
-            layoutManager = if (isVertical()) {
-                LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
-            } else {
-                LinearLayoutManager(applicationContext, LinearLayoutManager.HORIZONTAL, false)
-            }
-        }
 
         binding.submit.setOnClickListener {
             val cityName = binding.citySearch.text.toString()
@@ -54,7 +55,11 @@ class MainActivity : AppCompatActivity() {
                 val weather = openWeatherMap(cityName)
                 weatherInfo.add(weather)
                 binding.citySearch.setText("")
-                adapter.updateAdapter()
+                if (isLong) {
+                    (currentFragment as LongFragment)!!.update(ArrayList(weatherInfo))
+                } else {
+                    (currentFragment as ShortFragment)!!.update(ArrayList(weatherInfo))
+                }
             }
         }
 
@@ -62,14 +67,18 @@ class MainActivity : AppCompatActivity() {
             this.updateWeather()
         }
 
-
-    }
-
-    private fun isVertical(): Boolean {
-        return when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_PORTRAIT -> true
-            else -> false
+        binding.change.setOnClickListener {
+            isLong = !isLong
+            if (isLong) {
+                currentFragment = LongFragment(ArrayList(weatherInfo), this)
+            } else {
+                currentFragment = ShortFragment(ArrayList(weatherInfo), this)
+            }
+            fm.beginTransaction()
+                .replace(R.id.container, currentFragment!!)
+                .commit()
         }
+
     }
 
     private fun updateWeather() {
@@ -78,7 +87,11 @@ class MainActivity : AppCompatActivity() {
             val weather = openWeatherMap(weatherInfo[i].city)
             weatherInfo[i] = weather
         }
-        adapter.updateAdapter()
+        if (isLong) {
+            (currentFragment as LongFragment)!!.update(ArrayList(weatherInfo))
+        } else {
+            (currentFragment as ShortFragment)!!.update(ArrayList(weatherInfo))
+        }
     }
 
     private fun openWeatherMap(city_name: String) : Weather{
@@ -93,6 +106,7 @@ class MainActivity : AppCompatActivity() {
 
             weather.temp = jsonObject.getJSONObject("main").getString("temp").let { "${(it.toFloat()-273.15).roundToInt()}°С" }
             weather.humidity = jsonObject.getJSONObject("main").getString("humidity").let { "Humidity: $it%" }
+            weather.wind = jsonObject.getJSONObject("wind").getString("speed").let { "Wind speed: $it m/s" }
 
             val icon = JSONObject(jsonObject.getJSONArray("weather").getString(0)).getString("icon").let { "_${it}" }
             weather.iconID = resources.getIdentifier(icon, "drawable", packageName)
